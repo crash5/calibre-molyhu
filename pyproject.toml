@@ -1,0 +1,23 @@
+[build-system]
+requires = ['setuptools', 'wheel']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'molyhu'
+version = '1.0.0'
+description = 'Moly.hu metadata scraper'
+authors = [
+    {name = 'Imre NAGY'},
+]
+
+dependencies = [
+    'lxml'
+]
+
+requires-python = '>=3.7'
+
+[project.optional-dependencies]
+dev = ['pytest']
+
+[project.urls]
+Homepage = 'https://github.com/crash5/calibre_molyhu'
