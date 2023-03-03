@@ -3,8 +3,8 @@ from pathlib import Path
 
 from lxml.html import fromstring
 
-from molyhu.book import Book
-from molyhu.search_page import book_page_urls_from_seach_page
+from moly_hu.book import Book
+from moly_hu.search_page import book_page_urls_from_seach_page
 
 
 inputs_path = Path(__file__).parent / 'inputs'

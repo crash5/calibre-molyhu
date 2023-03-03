@@ -3,12 +3,12 @@ from urllib.parse import quote_plus
 from lxml.html import fromstring
 
 try:
-    from molyhu.book import Book
-    from molyhu.search_page import book_page_urls_from_seach_page
+    from moly_hu.book import Book
+    from moly_hu.search_page import book_page_urls_from_seach_page
 except:
     # TODO: handle somehow the calibre import style
-    from calibre_plugins.molyhu.molyhu.book import Book
-    from calibre_plugins.molyhu.molyhu.search_page import book_page_urls_from_seach_page
+    from calibre_plugins.moly_hu_reloaded.moly_hu.book import Book
+    from calibre_plugins.moly_hu_reloaded.moly_hu.search_page import book_page_urls_from_seach_page
 
 
 class MetadataSearch:

@@ -5,7 +5,7 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 
 
-from calibre_plugins.molyhu.molyhu.metadata_search import MetadataSearch
+from calibre_plugins.moly_hu_reloaded.moly_hu.metadata_search import MetadataSearch
 
 
 def get_url_content(url):
@@ -17,7 +17,7 @@ def get_url_content(url):
 
 
 class Molyhu(Source):
-    name = 'Molyhu'
+    name = 'Moly_hu Reloaded'
     description = _('Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin.')
     author = 'Imre NAGY'
     version = (5, 0, 3)

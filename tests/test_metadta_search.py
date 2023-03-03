@@ -6,7 +6,7 @@ from pathlib import Path
 # from molyhu.book import Book
 # from molyhu.search_page import book_page_urls_from_seach_page
 
-from molyhu.metadata_search import MetadataSearch
+from moly_hu.metadata_search import MetadataSearch
 
 inputs_path = Path(__file__).parent / 'inputs'
 
