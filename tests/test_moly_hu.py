@@ -3,11 +3,22 @@ from pathlib import Path
 
 from lxml.html import fromstring
 
-from moly_hu.book import Book
-from moly_hu.search_page import book_page_urls_from_seach_page
+from moly_hu.moly_hu import MetadataSearch, Book, book_page_urls_from_seach_page
 
 
 inputs_path = Path(__file__).parent / 'inputs'
+
+
+class TestMetadaSearch(unittest.TestCase):
+    def content_fetcher(url):
+        yield Path(inputs_path / 'search_page_raymond_feist.htm').read_text(encoding='utf-8')
+        yield Path(inputs_path / 'book_page_raymond_feist_az_erzoszivu_magus.htm').read_text(encoding='utf-8')
+
+    @unittest.skip
+    def test_b1(self):
+        s = MetadataSearch(self.content_fetcher)
+        s.search('', [], {})
+        self.assertEqual(s.books[0].title(), 'Az érzőszívű mágus')
 
 
 class TestBook(unittest.TestCase):
@@ -37,7 +48,7 @@ class TestBook(unittest.TestCase):
         self.assertTrue(self.book.cover_urls(), ['/system/covers/big/covers_4959.jpg'])
 
     def test_tags(self):
-        expected= [
+        expected = [
             'amerikai szerző',
             'elf',
             'fantasy',

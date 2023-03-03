@@ -5,7 +5,7 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 
 
-from calibre_plugins.moly_hu_reloaded.moly_hu.metadata_search import MetadataSearch
+from calibre_plugins.moly_hu_reloaded.moly_hu.moly_hu import MetadataSearch
 
 
 def get_url_content(url):
