@@ -23,8 +23,6 @@ class Molyhu(Source):
     version = (5, 0, 3)
     minimum_calibre_version  = (5, 0, 0)
 
-    # FIXME: remove ssl ignore
-    ignore_ssl_errors = True
     can_get_multiple_covers = True
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset([
