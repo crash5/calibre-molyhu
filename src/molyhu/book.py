@@ -1,3 +1,4 @@
+import datetime
 import re
 
 
@@ -30,7 +31,13 @@ class Book:
     def series(self):
         series_node = self._xml_root.xpath('//*[@id="content"]//*[@class="action"]/text()')
         if series_node:
-            return series_node[0].strip('().').rsplit(' ', 1)
+            series = series_node[0].strip('().').rsplit(' ', 1)
+            try:
+                # FIXME: what to do if the index is '1-2' and has to be an int?
+                series[1] = int(series[1])
+            except:
+                series[1] = 1
+            return series
         return None
 
     def publisher(self):
@@ -46,8 +53,10 @@ class Book:
         return None
 
     def publication_date(self):
-        return self._publication_date('//*[@id="content"]//*[@class="items"]/div/div[1]/text()') \
+        date_str = self._publication_date('//*[@id="content"]//*[@class="items"]/div/div[1]/text()') \
              or self._publication_date('//*[@id="content"]//*[@class="items"]/div/div[2]/text()')
+        if date_str:
+            return datetime.datetime(int(date_str), 1, 1)
 
     def _publication_date(self, xpath):
         publication_node = self._xml_root.xpath(xpath)

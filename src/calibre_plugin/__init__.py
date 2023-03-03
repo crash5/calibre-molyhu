@@ -47,6 +47,7 @@ class Molyhu(Source):
         error_message = None
 
         x = MetadataSearch(fetch_page_content=get_url_content)
+        x.search(title, authors, identifiers)
         for book in x.books:
             metadata = Metadata(book.title(), book.authors())
             metadata.source_relevance = 0
@@ -54,13 +55,13 @@ class Molyhu(Source):
             metadata.set_identifier('isbn', book.isbn())
             metadata.comments = book.description()
             metadata.tags = book.tags()
-            metadata.languages = book.langugages()
+            metadata.languages = book.languages()
             metadata.publisher = book.publisher()
             metadata.pubdate = book.publication_date()
             metadata.rating = book.rating()
             if book.series():
                 metadata.series = book.series()[0]
-                metadata.series_index = int(book.series()[1])
+                metadata.series_index = book.series()[1]
             result_queue.put(metadata)
 
         return error_message

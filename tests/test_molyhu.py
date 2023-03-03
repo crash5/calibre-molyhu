@@ -22,13 +22,13 @@ class TestBook(unittest.TestCase):
         self.assertEqual(self.book.title(), 'Az érzőszívű mágus')
 
     def test_series(self):
-        self.assertEqual(self.book.series(), ['A Résháború', '1-2'])
+        self.assertEqual(self.book.series(), ['A Résháború', 1])
 
     def test_publisher(self):
         self.assertEqual(self.book.publisher(), 'Unikornis')
 
     def test_publication_date(self):
-        self.assertEqual(self.book.publication_date(), '1991')
+        self.assertEqual(self.book.publication_date().year, 1991)
 
     def test_isbn(self):
         self.assertEqual(self.book.isbn(), '9637519416')
