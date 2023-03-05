@@ -39,7 +39,7 @@ def book_to_metadata(book) -> Metadata:
 
 
 class Molyhu(Source):
-    name = 'Moly_hu Reloaded'
+    name = 'Moly.hu Reloaded'
     description = _('Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin.')
     author = 'Imre NAGY'
     version = (6, 0, 0)
