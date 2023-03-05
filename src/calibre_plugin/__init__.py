@@ -41,6 +41,11 @@ class Molyhu(Source):
         'languages'
     ])
 
+
+    MOLY_DOMAIN = 'https://moly.hu'
+    MOLY_BOOK_URL = MOLY_DOMAIN + '/konyvek'
+    MOLY_ID_KEY = 'moly_hu'
+
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
         error_message = None
 
@@ -49,7 +54,7 @@ class Molyhu(Source):
         for book in x.books:
             metadata = Metadata(book.title(), book.authors())
             metadata.source_relevance = 0
-            metadata.set_identifier('moly_hu', book.moly_id())
+            metadata.set_identifier(self.MOLY_ID_KEY, book.moly_id())
             metadata.set_identifier('isbn', book.isbn())
             metadata.comments = book.description()
             metadata.tags = book.tags()
@@ -60,6 +65,17 @@ class Molyhu(Source):
             if book.series():
                 metadata.series = book.series()[0]
                 metadata.series_index = book.series()[1]
+
+            self.clean_downloaded_metadata(metadata)
             result_queue.put(metadata)
 
         return error_message
+
+    def get_book_url(self, identifiers: dict[str, str]):
+        moly_id = identifiers.get(self.MOLY_ID_KEY, None)
+        if moly_id:
+            return (self.MOLY_ID_KEY, moly_id, f'{self.MOLY_BOOK_URL}/{moly_id}')
+        return None
+
+    def get_book_url_name(self, idtype, idval, url):
+        return 'moly.hu'
