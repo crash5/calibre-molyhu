@@ -42,8 +42,12 @@ class Molyhu(Source):
     name = 'Moly.hu Reloaded'
     description = _('Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin.')
     author = 'Imre NAGY'
-    version = (6, 0, 0)
     minimum_calibre_version  = (6, 0, 0)
+    version = (6, 0, 0)
+
+    MOLY_DOMAIN = 'https://moly.hu'
+    MOLY_BOOK_URL = MOLY_DOMAIN + '/konyvek'
+    MOLY_ID_KEY = 'moly_hu'
 
     can_get_multiple_covers = True
     capabilities = frozenset(['identify', 'cover'])
@@ -51,7 +55,7 @@ class Molyhu(Source):
         'title',
         'authors',
         'identifier:isbn',
-        'identifier:moly_hu',
+        f'identifier:{MOLY_ID_KEY}',
         'tags',
         'comments',
         'rating',
@@ -64,9 +68,6 @@ class Molyhu(Source):
     ])
 
 
-    MOLY_DOMAIN = 'https://moly.hu'
-    MOLY_BOOK_URL = MOLY_DOMAIN + '/konyvek'
-    MOLY_ID_KEY = 'moly_hu'
 
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
         error_message = None
