@@ -11,14 +11,6 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre_plugins.moly_hu_reloaded.moly_hu.moly_hu import MetadataSearch
 
 
-def fetch_page(url):
-    br = browser()
-    response = br.open(url)
-    raw = response.read().strip()
-    raw = raw.decode('utf-8', errors='replace')
-    return clean_ascii_chars(raw)
-
-
 def book_to_metadata(book) -> Metadata:
     metadata = Metadata(book.title(), book.authors())
     # FIXME(crash): handle results' relevance from isbn/molyid?
@@ -67,12 +59,10 @@ class Molyhu(Source):
         'languages'
     ])
 
-
-
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
         error_message = None
 
-        x = MetadataSearch(fetch_page_content=fetch_page)
+        x = MetadataSearch(fetch_page_content=self._fetch_page)
         x.search(title, authors, identifiers)
         for book in x.books:
             covers = book.cover_urls()
@@ -85,6 +75,13 @@ class Molyhu(Source):
             result_queue.put(metadata)
 
         return error_message
+
+    def _fetch_page(self, url):
+        br = self.browser
+        response = br.open(url)
+        raw = response.read().strip()
+        raw = raw.decode('utf-8', errors='replace')
+        return clean_ascii_chars(raw)
 
     def get_book_url(self, identifiers: dict[str, str]):
         moly_id = identifiers.get(self.MOLY_ID_KEY, None)
