@@ -1,3 +1,6 @@
+from queue import Empty, Queue
+import time
+
 from calibre import browser
 from calibre.utils.cleantext import clean_ascii_chars
 
@@ -18,8 +21,10 @@ def fetch_page(url):
 
 def book_to_metadata(book) -> Metadata:
     metadata = Metadata(book.title(), book.authors())
+    # FIXME(crash): handle results' relevance from isbn/molyid?
     metadata.source_relevance = 0
     metadata.set_identifier(Molyhu.MOLY_ID_KEY, book.moly_id())
+    # FIXME(crash): check isbn? (from calibre.ebooks.metadata import check_isbn)
     metadata.set_identifier('isbn', book.isbn())
     metadata.comments = book.description()
     metadata.tags = book.tags()
@@ -69,6 +74,11 @@ class Molyhu(Source):
         x = MetadataSearch(fetch_page_content=fetch_page)
         x.search(title, authors, identifiers)
         for book in x.books:
+            covers = book.cover_urls()
+            if covers:
+                self.cache_identifier_to_cover_url(book.moly_id(), f'{self.MOLY_DOMAIN}{covers[0]}')
+            self.cache_isbn_to_identifier(book.isbn(), book.moly_id())
+
             metadata = book_to_metadata(book)
             self.clean_downloaded_metadata(metadata)
             result_queue.put(metadata)
@@ -83,3 +93,46 @@ class Molyhu(Source):
 
     def get_book_url_name(self, idtype, idval, url):
         return 'moly.hu'
+
+    def get_cached_cover_url(self, identifiers):
+        moly_id = identifiers.get(self.MOLY_ID_KEY, None)
+        if not moly_id:
+            isbn = identifiers.get('isbn', None)
+            moly_id = self.cached_isbn_to_identifier(isbn)
+        return self.cached_identifier_to_cover_url(moly_id)
+
+    # copy from: calibre/src/calibre/ebooks/metadata/sources/amazon.py
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
+        cached_url = self.get_cached_cover_url(identifiers)
+        if cached_url is None:
+            log.info('No cached cover found, running identify')
+            rq = Queue()
+            self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers, timeout=timeout)
+            if abort.is_set():
+                return
+            results = []
+            while True:
+                try:
+                    results.append(rq.get_nowait())
+                except Empty:
+                    break
+            results.sort(key=self.identify_results_keygen(title=title, authors=authors, identifiers=identifiers))
+            for mi in results:
+                cached_url = self.get_cached_cover_url(mi.identifiers)
+                if cached_url is not None:
+                    break
+        if cached_url is None:
+            log.info('No cover found')
+            return
+
+        if abort.is_set():
+            return
+
+        log('Downloading cover from:', cached_url)
+        br = self.browser
+        try:
+            time.sleep(1)
+            cdata = br.open_novisit(cached_url, timeout=timeout).read()
+            result_queue.put((self, cdata))
+        except:
+            log.exception('Failed to download cover from:', cached_url)
