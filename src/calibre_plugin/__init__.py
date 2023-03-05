@@ -8,12 +8,29 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre_plugins.moly_hu_reloaded.moly_hu.moly_hu import MetadataSearch
 
 
-def get_url_content(url):
+def fetch_page(url):
     br = browser()
     response = br.open(url)
     raw = response.read().strip()
     raw = raw.decode('utf-8', errors='replace')
     return clean_ascii_chars(raw)
+
+
+def book_to_metadata(book) -> Metadata:
+    metadata = Metadata(book.title(), book.authors())
+    metadata.source_relevance = 0
+    metadata.set_identifier(Molyhu.MOLY_ID_KEY, book.moly_id())
+    metadata.set_identifier('isbn', book.isbn())
+    metadata.comments = book.description()
+    metadata.tags = book.tags()
+    metadata.languages = book.languages()
+    metadata.publisher = book.publisher()
+    metadata.pubdate = book.publication_date()
+    metadata.rating = book.rating()
+    if book.series():
+        metadata.series = book.series()[0]
+        metadata.series_index = book.series()[1]
+    return metadata
 
 
 class Molyhu(Source):
@@ -49,23 +66,10 @@ class Molyhu(Source):
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
         error_message = None
 
-        x = MetadataSearch(fetch_page_content=get_url_content)
+        x = MetadataSearch(fetch_page_content=fetch_page)
         x.search(title, authors, identifiers)
         for book in x.books:
-            metadata = Metadata(book.title(), book.authors())
-            metadata.source_relevance = 0
-            metadata.set_identifier(self.MOLY_ID_KEY, book.moly_id())
-            metadata.set_identifier('isbn', book.isbn())
-            metadata.comments = book.description()
-            metadata.tags = book.tags()
-            metadata.languages = book.languages()
-            metadata.publisher = book.publisher()
-            metadata.pubdate = book.publication_date()
-            metadata.rating = book.rating()
-            if book.series():
-                metadata.series = book.series()[0]
-                metadata.series_index = book.series()[1]
-
+            metadata = book_to_metadata(book)
             self.clean_downloaded_metadata(metadata)
             result_queue.put(metadata)
 
