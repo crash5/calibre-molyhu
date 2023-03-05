@@ -58,6 +58,7 @@ def book_page_urls_from_seach_page(xml_root):
     return matches
 
 
+# FIXME(crash): andd isvalid() method to check the required values (id, isbn, title etc.)
 class Book:
     def __init__(self, xml_root, moly_id = None):
         self._xml_root = xml_root
@@ -89,7 +90,7 @@ class Book:
         if series_node:
             series = series_node[0].strip('().').rsplit(' ', 1)
             try:
-                # FIXME: what to do if the index is '1-2' and has to be an int?
+                # FIXME(crash): what to do if the index is '1-2' and has to be an int?
                 series[1] = int(series[1])
             except:
                 series[1] = 1
