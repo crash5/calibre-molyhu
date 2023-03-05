@@ -99,7 +99,7 @@ class Molyhu(Source):
             moly_id = self.cached_isbn_to_identifier(isbn)
         return self.cached_identifier_to_cover_url(moly_id)
 
-    # copy from: calibre/src/calibre/ebooks/metadata/sources/amazon.py
+    # original from: calibre/src/calibre/ebooks/metadata/sources/amazon.py
     def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
@@ -127,9 +127,8 @@ class Molyhu(Source):
             return
 
         log('Downloading cover from:', cached_url)
-        br = self.browser
         try:
-            time.sleep(1)
+            br = self.browser
             cdata = br.open_novisit(cached_url, timeout=timeout).read()
             result_queue.put((self, cdata))
         except:
