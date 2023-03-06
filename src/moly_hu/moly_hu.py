@@ -45,6 +45,7 @@ class MetadataSearch:
 
     def _get_book(self, url):
         book_page = self._page_fetcher('https://moly.hu/' + url)
+        # FIXME(crash): check for empty book_page
         return Book(xml_root=fromstring(book_page), moly_id=url.rsplit('/', 1)[-1])
 
 
@@ -113,6 +114,7 @@ class Book:
         date_str = self._publication_date('//*[@id="content"]//*[@class="items"]/div/div[1]/text()') \
              or self._publication_date('//*[@id="content"]//*[@class="items"]/div/div[2]/text()')
         if date_str:
+            # FIXME(crash): return year as int only
             return datetime.datetime(int(date_str), 1, 1)
 
     def _publication_date(self, xpath):
@@ -156,8 +158,11 @@ class Book:
         return None
 
     def languages(self):
+        tags = self.tags()
+        if not tags:
+            return None
         langs = []
-        for tag in self.tags():
+        for tag in tags:
             langId = self._translateLanguageToCode(tag)
             if langId is not None:
                 langs.append(langId)

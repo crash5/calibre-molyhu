@@ -21,7 +21,7 @@ class TestMetadaSearch(unittest.TestCase):
         self.assertEqual(s.books[0].title(), 'Az érzőszívű mágus')
 
 
-class TestBook(unittest.TestCase):
+class TestBookWithPageV2(unittest.TestCase):
     def setUp(self):
         book_page_content = Path(inputs_path / 'book_page_raymond_feist_az_erzoszivu_magus.htm').read_text(encoding='utf-8')
         self.book = Book(fromstring(book_page_content))
@@ -45,7 +45,7 @@ class TestBook(unittest.TestCase):
         self.assertEqual(self.book.isbn(), '9637519416')
 
     def test_cover_urls(self):
-        self.assertTrue(self.book.cover_urls(), ['/system/covers/big/covers_4959.jpg'])
+        self.assertEqual(self.book.cover_urls(), ['/system/covers/big/covers_4959.jpg?1395344202'])
 
     def test_tags(self):
         expected = [
@@ -98,6 +98,44 @@ class TestSearchPage(unittest.TestCase):
         book_urls = book_page_urls_from_seach_page(page_content)
 
         self.assertEqual(book_urls, expected_urls)
+
+
+class TestBookWithEmptyInput(unittest.TestCase):
+    def setUp(self):
+        self.book = Book(fromstring('dummy data'))
+
+    def test_author(self):
+        self.assertEqual(self.book.authors(), [])
+
+    def test_title(self):
+        self.assertEqual(self.book.title(), None)
+
+    def test_series(self):
+        self.assertEqual(self.book.series(), None)
+
+    def test_publisher(self):
+        self.assertEqual(self.book.publisher(), None)
+
+    def test_publication_date(self):
+        self.assertEqual(self.book.publication_date(), None)
+
+    def test_isbn(self):
+        self.assertEqual(self.book.isbn(), None)
+
+    def test_cover_urls(self):
+        self.assertEqual(self.book.cover_urls(), None)
+
+    def test_tags(self):
+        self.assertEqual(self.book.tags(), None)
+
+    def test_rating(self):
+        self.assertEqual(self.book.rating(), None)
+
+    def test_languages(self):
+        self.assertEqual(self.book.languages(), None)
+
+    def test_description(self):
+        self.assertEqual(self.book.description(), None)
 
 
 if __name__ == '__main__':
