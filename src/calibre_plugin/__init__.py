@@ -1,14 +1,10 @@
 from queue import Empty, Queue
-import time
 
-from calibre import browser
 from calibre.utils.cleantext import clean_ascii_chars
-
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 
-
-from calibre_plugins.moly_hu_reloaded.moly_hu.moly_hu import MetadataSearch
+import calibre_plugins.moly_hu_reloaded.moly_hu.moly_hu as molyhu
 
 
 def book_to_metadata(book) -> Metadata:
@@ -37,8 +33,8 @@ class Molyhu(Source):
     minimum_calibre_version  = (6, 0, 0)
     version = (6, 0, 0)
 
-    MOLY_DOMAIN = 'https://moly.hu'
-    MOLY_BOOK_URL = MOLY_DOMAIN + '/konyvek'
+    MOLY_DOMAIN = molyhu.DOMAIN
+    MOLY_BOOK_URL = molyhu.BOOK_URL
     MOLY_ID_KEY = 'moly_hu'
 
     can_get_multiple_covers = True
@@ -62,9 +58,10 @@ class Molyhu(Source):
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
         error_message = None
 
-        x = MetadataSearch(fetch_page_content=self._fetch_page)
-        x.search(title, authors, identifiers)
-        for book in x.books:
+        book_finder = lambda x: molyhu.search(x, self._fetch_page)
+        book_ids = molyhu.book_ids_for(title, authors, identifiers, book_finder)
+        for id in book_ids:
+            book = molyhu.book_for_id(id, self._fetch_page)
             covers = book.cover_urls()
             if covers:
                 self.cache_identifier_to_cover_url(book.moly_id(), f'{self.MOLY_DOMAIN}{covers[0]}')

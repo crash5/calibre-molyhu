@@ -3,22 +3,10 @@ from pathlib import Path
 
 from lxml.html import fromstring
 
-from moly_hu.moly_hu import MetadataSearch, Book, book_page_urls_from_seach_page
+from moly_hu.moly_hu import Book, book_page_urls_from_seach_page
 
 
 inputs_path = Path(__file__).parent / 'inputs'
-
-
-class TestMetadaSearch(unittest.TestCase):
-    def content_fetcher(url):
-        yield Path(inputs_path / 'search_page_raymond_feist.htm').read_text(encoding='utf-8')
-        yield Path(inputs_path / 'book_page_raymond_feist_az_erzoszivu_magus.htm').read_text(encoding='utf-8')
-
-    @unittest.skip
-    def test_b1(self):
-        s = MetadataSearch(self.content_fetcher)
-        s.search('', [], {})
-        self.assertEqual(s.books[0].title(), 'Az érzőszívű mágus')
 
 
 class TestBookWithPageV2(unittest.TestCase):
@@ -83,16 +71,16 @@ class TestBookWithPageV2(unittest.TestCase):
 class TestSearchPage(unittest.TestCase):
     def test_book_page_urls_from_seach_page(self):
         expected_urls = {
-            '/konyvek/raymond-e-feist-janny-wurts-a-birodalom-leanya',
-            '/konyvek/raymond-e-feist-a-demonkiraly-duhe-i-ii',
-            '/konyvek/raymond-e-feist-janny-wurts-a-birodalom-szolgaloja-i-ii',
-            '/konyvek/raymond-e-feist-sethanon-alkonya',
-            '/konyvek/raymond-e-feist-a-kiraly-kaloza-i-ii',
-            '/konyvek/raymond-e-feist-magus-a-mester',
-            '/konyvek/raymond-e-feist-magus-a-tanitvany',
-            '/konyvek/raymond-e-feist-ezusttovis',
-            '/konyvek/raymond-e-feist-verbeli-herceg',
-            '/konyvek/raymond-e-feist-az-erzoszivu-magus'}
+            'raymond-e-feist-janny-wurts-a-birodalom-leanya',
+            'raymond-e-feist-a-demonkiraly-duhe-i-ii',
+            'raymond-e-feist-janny-wurts-a-birodalom-szolgaloja-i-ii',
+            'raymond-e-feist-sethanon-alkonya',
+            'raymond-e-feist-a-kiraly-kaloza-i-ii',
+            'raymond-e-feist-magus-a-mester',
+            'raymond-e-feist-magus-a-tanitvany',
+            'raymond-e-feist-ezusttovis',
+            'raymond-e-feist-verbeli-herceg',
+            'raymond-e-feist-az-erzoszivu-magus'}
 
         page_content = fromstring(Path(inputs_path / 'search_page_raymond_feist.htm').read_text(encoding='utf-8'))
         book_urls = book_page_urls_from_seach_page(page_content)

@@ -1,27 +1,15 @@
 import urllib.request
-from pathlib import Path
 
-from lxml.html import fromstring
-
-from moly_hu.book import Book
-from moly_hu.search_page import book_page_urls_from_seach_page
-from moly_hu.metadata_search import MetadataSearch
+import moly_hu.moly_hu as molyhu
 
 
 if __name__ == '__main__':
     print('start')
 
-    # inputs_path = Path(__file__).parent / 'tests/inputs'
-    # search_page_content = Path(inputs_path / 'search_page_raymond_feist.htm').read_text(encoding='utf-8')
-    # print(book_page_urls_from_seach_page(fromstring(search_page_content)))
-    # book_page_content = Path(inputs_path / 'book_page_raymond_feist_az_erzoszivu_magus.htm').read_text(encoding='utf-8')
-    # print(Book(fromstring(book_page_content)))
+    dl = lambda x: urllib.request.urlopen(x).read().decode('utf-8')
+    search = lambda x: molyhu.search(x, dl)
 
-    s = MetadataSearch(lambda x: urllib.request.urlopen(x).read().decode('utf-8'), max_results=1)
-    # s.search('Az érzőszívű mágus', ['Raymond E. Feist'], {})
-    # s.search('Az érzőszívű mágus', [], {})
-    s.search('a', ['Raymond E. Feist'], {})
-    # s.search('', [], {'moly_hu': 'raymond-e-feist-az-erzoszivu-magus'})
-    print(list(map(str, s.books)))
-
+    book_ids = molyhu.book_ids_for('magus', ['raymond feist'], {}, search)
+    book = molyhu.book_for_id(book_ids[0], dl)
+    print(book)
     print('end')
