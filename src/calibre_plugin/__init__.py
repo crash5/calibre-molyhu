@@ -1,8 +1,10 @@
 from queue import Empty, Queue
+import datetime
 
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata import check_isbn
 
 import calibre_plugins.moly_hu_reloaded.moly_hu.moly_hu as molyhu
 
@@ -12,13 +14,12 @@ def book_to_metadata(book) -> Metadata:
     # FIXME(crash): handle results' relevance from isbn/molyid?
     metadata.source_relevance = 0
     metadata.set_identifier(Molyhu.MOLY_ID_KEY, book.moly_id())
-    # FIXME(crash): check isbn? (from calibre.ebooks.metadata import check_isbn)
-    metadata.set_identifier('isbn', book.isbn())
+    metadata.set_identifier('isbn', check_isbn(book.isbn()))
     metadata.comments = book.description()
     metadata.tags = book.tags()
     metadata.languages = book.languages()
     metadata.publisher = book.publisher()
-    metadata.pubdate = book.publication_date()
+    metadata.pubdate = datetime.datetime(book.publication_date(), 1, 1)
     metadata.rating = book.rating()
     if book.series():
         metadata.series = book.series()[0]
@@ -64,6 +65,8 @@ class Molyhu(Source):
             if abort.is_set():
                 return
             book = molyhu.book_for_id(id, self._fetch_page)
+            if not book:
+                continue
             if covers := book.cover_urls():
                 self.cache_identifier_to_cover_url(book.moly_id(), f'{self.MOLY_DOMAIN}{covers[0]}')
             self.cache_isbn_to_identifier(book.isbn(), book.moly_id())

@@ -27,7 +27,7 @@ class TestBookWithPageV2(unittest.TestCase):
         self.assertEqual(self.book.publisher(), 'Unikornis')
 
     def test_publication_date(self):
-        self.assertEqual(self.book.publication_date().year, 1991)
+        self.assertEqual(self.book.publication_date(), 1991)
 
     def test_isbn(self):
         self.assertEqual(self.book.isbn(), '9637519416')

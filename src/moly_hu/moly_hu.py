@@ -33,8 +33,9 @@ def book_ids_for(title: str, authors: list[str], identifiers: dict[str, str], bo
 def book_for_id(book_id, fetch_page_content):
     url = f'{BOOK_URL}/{book_id}'
     book_page = fetch_page_content(url)
-    # FIXME(crash): check for empty book_page
-    return Book(xml_root=fromstring(book_page), moly_id=book_id)
+    if book_page:
+        return Book(xml_root=fromstring(book_page), moly_id=book_id)
+    return None
 
 
 def book_page_urls_from_seach_page(xml_root):
@@ -109,8 +110,7 @@ class Book:
         date_str = self._publication_date('//*[@id="content"]//*[@class="items"]/div/div[1]/text()') \
              or self._publication_date('//*[@id="content"]//*[@class="items"]/div/div[2]/text()')
         if date_str:
-            # FIXME(crash): return year as int only
-            return datetime.datetime(int(date_str), 1, 1)
+            return int(date_str)
 
     def _publication_date(self, xpath):
         publication_node = self._xml_root.xpath(xpath)
