@@ -61,9 +61,10 @@ class Molyhu(Source):
         book_finder = lambda x: molyhu.search(x, self._fetch_page)
         book_ids = molyhu.book_ids_for(title, authors, identifiers, book_finder)
         for id in book_ids:
+            if abort.is_set():
+                return
             book = molyhu.book_for_id(id, self._fetch_page)
-            covers = book.cover_urls()
-            if covers:
+            if covers := book.cover_urls():
                 self.cache_identifier_to_cover_url(book.moly_id(), f'{self.MOLY_DOMAIN}{covers[0]}')
             self.cache_isbn_to_identifier(book.isbn(), book.moly_id())
 
