@@ -55,6 +55,10 @@ def search(keyword, fetch_page_content):
     return book_page_urls_from_seach_page(fromstring(content))
 
 
+def book_url_for_id(id):
+    return f'{BOOK_URL}/{id}'
+
+
 # FIXME(crash): andd isvalid() method to check the required values (id, isbn, title etc.)
 class Book:
     def __init__(self, xml_root, moly_id = None):
@@ -72,7 +76,7 @@ class Book:
         author_nodes = self._xml_root.xpath('//*[@id="content"]//div[@class="authors"]/a/text()')
         if author_nodes:
             return [str(author) for author in author_nodes]
-        return []
+        return None
 
     def title(self):
         title_node = self._xml_root.xpath('//*[@id="content"]//*[@class="fn"]/text()') \
@@ -135,7 +139,7 @@ class Book:
     def cover_urls(self):
         book_covers = self._xml_root.xpath('(//*[@class="coverbox"]//a/@href)')
         if book_covers:
-            return [cover_url for cover_url in book_covers]
+            return [f'{DOMAIN}{cover_url}' for cover_url in book_covers]
         return None
 
     def tags(self):

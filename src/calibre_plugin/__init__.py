@@ -34,8 +34,6 @@ class Molyhu(Source):
     minimum_calibre_version  = (6, 0, 0)
     version = (6, 0, 0)
 
-    MOLY_DOMAIN = molyhu.DOMAIN
-    MOLY_BOOK_URL = molyhu.BOOK_URL
     MOLY_ID_KEY = 'moly_hu'
 
     can_get_multiple_covers = True
@@ -68,7 +66,7 @@ class Molyhu(Source):
             if not book:
                 continue
             if covers := book.cover_urls():
-                self.cache_identifier_to_cover_url(book.moly_id(), f'{self.MOLY_DOMAIN}{covers[0]}')
+                self.cache_identifier_to_cover_url(book.moly_id(), covers[0])
             self.cache_isbn_to_identifier(book.isbn(), book.moly_id())
 
             metadata = book_to_metadata(book)
@@ -87,7 +85,7 @@ class Molyhu(Source):
     def get_book_url(self, identifiers: dict[str, str]):
         moly_id = identifiers.get(self.MOLY_ID_KEY, None)
         if moly_id:
-            return (self.MOLY_ID_KEY, moly_id, f'{self.MOLY_BOOK_URL}/{moly_id}')
+            return (self.MOLY_ID_KEY, moly_id, molyhu.book_url_for_id(moly_id))
         return None
 
     def get_book_url_name(self, idtype, idval, url):

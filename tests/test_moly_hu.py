@@ -33,7 +33,7 @@ class TestBookWithPageV2(unittest.TestCase):
         self.assertEqual(self.book.isbn(), '9637519416')
 
     def test_cover_urls(self):
-        self.assertEqual(self.book.cover_urls(), ['/system/covers/big/covers_4959.jpg?1395344202'])
+        self.assertEqual(self.book.cover_urls(), ['https://moly.hu/system/covers/big/covers_4959.jpg?1395344202'])
 
     def test_tags(self):
         expected = [
@@ -93,7 +93,7 @@ class TestBookWithEmptyInput(unittest.TestCase):
         self.book = Book(fromstring('dummy data'))
 
     def test_author(self):
-        self.assertEqual(self.book.authors(), [])
+        self.assertEqual(self.book.authors(), None)
 
     def test_title(self):
         self.assertEqual(self.book.title(), None)
