@@ -36,7 +36,6 @@ class Molyhu(Source):
 
     MOLY_ID_KEY = 'moly_hu'
 
-    can_get_multiple_covers = True
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset([
         'title',
