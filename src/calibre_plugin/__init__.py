@@ -6,7 +6,7 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata import check_isbn
 
-import calibre_plugins.moly_hu_reloaded.moly_hu.moly_hu as molyhu
+import calibre_plugins.moly_hu_reloaded.moly_hu as molyhu
 
 
 def book_to_metadata(book) -> Metadata:
