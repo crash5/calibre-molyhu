@@ -2,7 +2,7 @@ from queue import Empty, Queue
 import datetime
 
 from calibre.utils.cleantext import clean_ascii_chars
-from calibre.ebooks.metadata.sources.base import Source
+from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata import check_isbn
 
@@ -36,6 +36,7 @@ class Molyhu(Source):
 
     MOLY_ID_KEY = 'moly_hu'
 
+    # Capabilities
     capabilities = frozenset(['identify', 'cover'])
     touched_fields = frozenset([
         'title',
@@ -53,16 +54,32 @@ class Molyhu(Source):
         'languages'
     ])
 
+    # Options
+    KEY_MAX_BOOKS = 'max_books'
+    options = (
+        Option(KEY_MAX_BOOKS, 'number', 3, _('Maximum number of books to get'), _('The maximum number of books to process from the moly.hu search result')),
+    )
+
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
         error_message = None
+        max_books = self.prefs[self.KEY_MAX_BOOKS]
 
         book_finder = lambda x: moly_hu.search(x, self._fetch_page)
         book_ids = moly_hu.book_ids_for(title, authors, identifiers, book_finder)
-        for id in book_ids:
+
+        log.info(f'Found {len(book_ids)} books showing {min(max_books, len(book_ids))} books.')
+
+        for index, id in enumerate(book_ids):
             if abort.is_set():
+                log.info('Abort request received, returning.')
                 return
+            if index >= max_books:
+                log.info(f'Max book limit reached, returning. (limit: {max_books})')
+                return
+
             book = moly_hu.book_for_id(id, self._fetch_page)
             if not book:
+                log.warning(f'No book found with id {id}')
                 continue
             if covers := book.cover_urls():
                 self.cache_identifier_to_cover_url(book.moly_id(), covers[0])
