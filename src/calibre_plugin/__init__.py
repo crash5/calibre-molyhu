@@ -6,7 +6,7 @@ from calibre.ebooks.metadata.sources.base import Source
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata import check_isbn
 
-import calibre_plugins.moly_hu_reloaded.moly_hu as molyhu
+import calibre_plugins.moly_hu_reloaded.moly_hu as moly_hu
 
 
 def book_to_metadata(book) -> Metadata:
@@ -56,12 +56,12 @@ class Molyhu(Source):
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
         error_message = None
 
-        book_finder = lambda x: molyhu.search(x, self._fetch_page)
-        book_ids = molyhu.book_ids_for(title, authors, identifiers, book_finder)
+        book_finder = lambda x: moly_hu.search(x, self._fetch_page)
+        book_ids = moly_hu.book_ids_for(title, authors, identifiers, book_finder)
         for id in book_ids:
             if abort.is_set():
                 return
-            book = molyhu.book_for_id(id, self._fetch_page)
+            book = moly_hu.book_for_id(id, self._fetch_page)
             if not book:
                 continue
             if covers := book.cover_urls():
@@ -84,7 +84,7 @@ class Molyhu(Source):
     def get_book_url(self, identifiers: dict[str, str]):
         moly_id = identifiers.get(self.MOLY_ID_KEY, None)
         if moly_id:
-            return (self.MOLY_ID_KEY, moly_id, molyhu.book_url_for_id(moly_id))
+            return (self.MOLY_ID_KEY, moly_id, moly_hu.book_url_for_id(moly_id))
         return None
 
     def get_book_url_name(self, idtype, idval, url):
