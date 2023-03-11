@@ -1,6 +1,18 @@
-https://moly.hu/kereses?utf8=%E2%9C%93&q=raymond+feist
+# Moly.hu Metadata source for [Calibre](https://calibre-ebook.com/)
 
-https://moly.hu/konyvek/raymond-e-feist-az-erzoszivu-magus
+Based on Hokutya's [moly.hu plugin](https://www.mobileread.com/forums/showthread.php?t=193302) from mobileread.com.
+
+Metadata from https://moly.hu
 
 
-calibre-debug -s; calibre-customize -b .; calibre
+## Contributing
+
+```
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+
+python -m pytest -v tests/
+```
+
+Reload in calibre: `calibre-debug -s; calibre-customize -b .; calibre`
