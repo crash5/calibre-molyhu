@@ -61,13 +61,25 @@ class Molyhu(Source):
     )
 
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
-        error_message = None
         max_books = self.prefs[self.KEY_MAX_BOOKS]
 
-        book_finder = lambda x: moly_hu.search(x, self._fetch_page)
-        book_ids = moly_hu.book_ids_for(title, authors, identifiers, book_finder)
+        search_terms = moly_hu.generate_search_terms(title, authors, identifiers)
+        log.info(f'Search terms: {search_terms}')
 
-        log.info(f'Found {len(book_ids)} books showing {min(max_books, len(book_ids))} books.')
+        book_ids = []
+
+        moly_id = identifiers.get(self.MOLY_ID_KEY)
+        if moly_id:
+            book_ids.append(moly_id)
+
+        for search_term in search_terms:
+            if len(book_ids) >= max_books:
+                break
+            if abort.is_set():
+                log.info('Abort request received, returning.')
+                return
+            log.info(f'Search for: {search_term}')
+            book_ids.extend(moly_hu.search(search_term, self._fetch_page))
 
         for index, id in enumerate(book_ids):
             if abort.is_set():
@@ -89,6 +101,7 @@ class Molyhu(Source):
             self.clean_downloaded_metadata(metadata)
             result_queue.put(metadata)
 
+        error_message = None
         return error_message
 
     def _fetch_page(self, url):

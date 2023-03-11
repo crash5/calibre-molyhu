@@ -3,7 +3,7 @@ from pathlib import Path
 
 from lxml.html import fromstring
 
-from moly_hu.moly_hu import Book, book_page_urls_from_seach_page
+from moly_hu.moly_hu import Book, book_page_urls_from_seach_page, generate_search_terms
 
 
 inputs_path = Path(__file__).parent / 'inputs'
@@ -125,6 +125,71 @@ class TestBookWithEmptyInput(unittest.TestCase):
     def test_description(self):
         self.assertEqual(self.book.description(), None)
 
+
+
+
+class TestSearchStringGeneration(unittest.TestCase):
+    authors = ['Raymond E. Feist', 'Dummy Additional Author']
+    title = 'Az ​érzőszívű mágus'
+    identifiers = {
+        'isbn': '9637519416',
+        'moly_hu': 'raymond-e-feist-az-erzoszivu-magus'
+    }
+
+    def test_author_and_title(self):
+        authors = [self.authors[0]]
+        title = self.title
+        identifiers = {}
+        expected = [
+            'Raymond E. Feist Az ​érzőszívű mágus',
+            'Az ​érzőszívű mágus',
+        ]
+        result = generate_search_terms(title, authors, identifiers)
+        self.assertEqual(result, expected)
+
+    def test_isbn_only(self):
+        authors = []
+        title = ''
+        identifiers = {'isbn': self.identifiers['isbn']}
+        expected = [
+            '9637519416',
+        ]
+        result = generate_search_terms(title, authors, identifiers)
+        self.assertEqual(result, expected)
+
+    def test_title_only(self):
+        authors = []
+        title = self.title
+        identifiers = {}
+        expected = [
+            'Az ​érzőszívű mágus',
+        ]
+        result = generate_search_terms(title, authors, identifiers)
+        self.assertEqual(result, expected)
+
+    def test_order_if_everything_available(self):
+        authors = [self.authors[0]]
+        title = self.title
+        identifiers = self.identifiers
+        expected = [
+            '9637519416',
+            'Raymond E. Feist Az ​érzőszívű mágus',
+            'Az ​érzőszívű mágus',
+        ]
+        result = generate_search_terms(title, authors, identifiers)
+        self.assertEqual(result, expected)
+
+    def test_multiple_author(self):
+        authors = self.authors
+        title = self.title
+        identifiers = {}
+        expected = [
+            'Raymond E. Feist Az ​érzőszívű mágus',
+            'Dummy Additional Author Az ​érzőszívű mágus',
+            'Az ​érzőszívű mágus',
+        ]
+        result = generate_search_terms(title, authors, identifiers)
+        self.assertEqual(result, expected)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

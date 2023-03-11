@@ -10,24 +10,17 @@ DOMAIN = 'https://moly.hu'
 BOOK_URL = DOMAIN + '/konyvek'
 
 
-def book_ids_for(title: str, authors: list[str], identifiers: dict[str, str], book_finder):
-    # dict() is ordered from python 3.7
-    book_urls = dict()
-
-    if 'moly_hu' in identifiers:
-        book_urls.setdefault(identifiers['moly_hu'])
-
-    search_for = None
-    if len(authors) > 0 and title:
-        search_for = f'{authors[0]} {title}'
-    elif title:
-        search_for = title
-    if search_for:
-        urls = book_finder(search_for)
-        if not urls and title:
-            urls = book_finder(title)
-        book_urls.update(dict.fromkeys(urls))
-    return list(book_urls)
+def generate_search_terms(title: str, authors: list[str], identifiers: dict[str, str]):
+    search_terms = list()
+    isbn = identifiers.get('isbn')
+    if isbn:
+        search_terms.append(isbn)
+    if authors and title:
+        for author in authors:
+            search_terms.append(f'{author} {title}')
+    if title:
+        search_terms.append(title)
+    return list(dict.fromkeys(search_terms))
 
 
 def book_for_id(book_id, fetch_page_content):
