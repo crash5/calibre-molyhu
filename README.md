@@ -6,7 +6,6 @@ Metadata from https://moly.hu
 
 
 ## Contributing
-
 ```
 python -m venv .venv
 source .venv/bin/activate
@@ -16,3 +15,15 @@ python -m pytest -v tests/
 ```
 
 Reload in calibre: `calibre-debug -s; calibre-customize -b .; calibre`
+
+VSCode:
+```
+{
+    "python.autoComplete.extraPaths": [
+        "../calibre/src"
+    ],
+    "python.analysis.extraPaths": [
+        "../calibre/src"
+    ],
+}
+```
