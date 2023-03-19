@@ -31,8 +31,8 @@ class Molyhu(Source):
     name = 'Moly.hu Reloaded'
     description = _('Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin.')
     author = 'Imre NAGY'
-    minimum_calibre_version  = (6, 0, 0)
     version = (6, 0, 0)
+    minimum_calibre_version  = (5, 0, 0)
 
     MOLY_ID_KEY = 'moly_hu'
 
@@ -111,7 +111,7 @@ class Molyhu(Source):
         raw = raw.decode('utf-8', errors='replace')
         return clean_ascii_chars(raw)
 
-    def get_book_url(self, identifiers: dict[str, str]):
+    def get_book_url(self, identifiers):
         moly_id = identifiers.get(self.MOLY_ID_KEY, None)
         if moly_id:
             return (self.MOLY_ID_KEY, moly_id, moly_hu.book_url_for_id(moly_id))

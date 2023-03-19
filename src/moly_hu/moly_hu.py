@@ -9,7 +9,7 @@ DOMAIN = 'https://moly.hu'
 BOOK_URL = DOMAIN + '/konyvek'
 
 
-def generate_search_terms(title: str, authors: list[str], identifiers: dict[str, str]):
+def generate_search_terms(title, authors, identifiers):
     search_terms = list()
     isbn = identifiers.get('isbn')
     if isbn:
