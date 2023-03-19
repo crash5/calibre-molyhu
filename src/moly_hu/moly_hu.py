@@ -1,5 +1,4 @@
 from urllib.parse import quote_plus
-import datetime
 import re
 
 from lxml.etree import strip_tags
