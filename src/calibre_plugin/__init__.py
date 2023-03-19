@@ -112,13 +112,27 @@ class Molyhu(Source):
         return clean_ascii_chars(raw)
 
     def get_book_url(self, identifiers):
+        result = []
         moly_id = identifiers.get(self.MOLY_ID_KEY, None)
         if moly_id:
-            return (self.MOLY_ID_KEY, moly_id, moly_hu.book_url_for_id(moly_id))
-        return None
+            result.append((self.MOLY_ID_KEY, moly_id, moly_hu.book_url_for_id(moly_id)))
+        isbn = identifiers.get('isbn', None)
+        if isbn:
+            result.append(('isbn', isbn, f'http://www.mokka.hu/mokka/CCL/q=MEGA%3D{isbn}'))
+        return tuple(result) or None
+
+    def get_book_urls(self, identifiers):
+        data = self.get_book_url(identifiers)
+        if data is None:
+            return ()
+        return data
 
     def get_book_url_name(self, idtype, idval, url):
-        return 'moly.hu'
+        if idtype == self.MOLY_ID_KEY:
+            return 'moly.hu'
+        if idtype == 'isbn':
+            return 'mokka.hu'
+        return None
 
     def get_cached_cover_url(self, identifiers):
         moly_id = identifiers.get(self.MOLY_ID_KEY, None)
