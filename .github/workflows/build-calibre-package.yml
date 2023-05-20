@@ -3,18 +3,9 @@ name: Build calibre package
 on:
   push:
     branches: ['main', 'dev', 'master']
-    paths:
-      - '.github/workflows/build-calibre-package.yml'
-      - 'pyproject.toml'
-      - 'src/moly_hu/**.py'
-      - 'tests/**.py'
+    tags: ['v*']
   pull_request:
     branches: ['main', 'dev', 'master']
-    paths:
-      - '.github/workflows/build-calibre-package.yml'
-      - 'pyproject.toml'
-      - 'src/moly_hu/**.py'
-      - 'tests/**.py'
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
