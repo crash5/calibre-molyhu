@@ -6,7 +6,7 @@ import moly_hu.moly_hu as molyhu
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('search_for', type=str, default= 'Raymond Feist Magus')
+    parser.add_argument('search_for', type=str, help='What to search for eg: Raymond Feist Magus')
     parser.add_argument('-c', '--count', type=int, default=1)
     args = parser.parse_args()
     search_for = args.search_for
