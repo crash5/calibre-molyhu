@@ -20,4 +20,4 @@ requires-python = '>=3.7'
 dev = ['pytest']
 
 [project.urls]
-Homepage = 'https://github.com/crash5/calibre_molyhu'
+Homepage = 'https://github.com/crash5/calibre-molyhu'

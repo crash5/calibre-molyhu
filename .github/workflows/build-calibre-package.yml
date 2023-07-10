@@ -28,23 +28,32 @@ jobs:
       with:
         python-version: "3.10"
         cache: 'pip'
-        cache-dependency-path: 'pyproject.toml'
+        cache-dependency-path: 'moly_hu/pyproject.toml'
 
     - name: Install dependencies
       run: |
         # python -m pip install --upgrade pip
-        pip install .[dev]
+        pip install ./moly_hu[dev]
 
     - name: Test with pytest
-      run: pytest -v tests/
+      run: |
+        pytest -v moly_hu/tests/
 
-    - name: Create package
+    - name: Create calibre package
       if: startsWith(github.ref, 'refs/tags/v')
       run: |
         export RELEASE_VERSION=${{github.ref_name}}
-        export RELEASE_FILE_NAME=Moly_hu_Reloaded-${RELEASE_VERSION}.zip
-        mkdir output
-        bash ./scripts/create_plugin_zip.sh ./ ./output/${RELEASE_FILE_NAME}
+        export RELEASE_FILE_NAME=Calibre_Moly_hu-${RELEASE_VERSION}.zip
+        mkdir -p output
+        bash ./scripts/create_calibre_plugin_zip.sh ./ ./output/${RELEASE_FILE_NAME}
+
+    - name: Create calibre-web package
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        export RELEASE_VERSION=${{github.ref_name}}
+        export RELEASE_FILE_NAME=Calibre-web_Moly_hu-${RELEASE_VERSION}.zip
+        mkdir -p output
+        bash ./scripts/create_calibreweb_plugin_zip.sh ./ ./output/${RELEASE_FILE_NAME}
 
     - name: Create release
       if: startsWith(github.ref, 'refs/tags/v')

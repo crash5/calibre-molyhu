@@ -14,7 +14,7 @@ function toAbsolutePath {
 }
 
 readonly SOURCE_PATH=$(toAbsolutePath "${1}")
-readonly OUTPUT_FILE=$(toAbsolutePath ${2:-"Moly_hu_Reloaded.zip"})
+readonly OUTPUT_FILE=$(toAbsolutePath ${2:-"Calibre_Moly_hu_Reloaded.zip"})
 
 if [[ ${#@} -lt 1 ]]; then
     echo "Usage: ${0} <source repo path> [output file]"
@@ -24,9 +24,9 @@ fi
 readonly TEMPORARY_WORK_DIR=$(mktemp -d -p .)
 cd "${TEMPORARY_WORK_DIR}"
 
-cp "${SOURCE_PATH}"/src/calibre_plugin/__init__.py .
-cp "${SOURCE_PATH}"/src/calibre_plugin/plugin-import-name-moly_hu_reloaded.txt .
-cp "${SOURCE_PATH}"/src/moly_hu/moly_hu.py .
+cp "${SOURCE_PATH}"/calibre/__init__.py .
+cp "${SOURCE_PATH}"/calibre/plugin-import-name-moly_hu_reloaded.txt .
+cp "${SOURCE_PATH}"/moly_hu/src/moly_hu/moly_hu.py .
 cp "${SOURCE_PATH}"/README.md .
 zip -r "${OUTPUT_FILE}" .
 
