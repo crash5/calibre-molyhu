@@ -43,7 +43,8 @@ def book_page_urls_from_seach_page(xml_root):
 
 
 def search(keyword, fetch_page_content):
-    content = fetch_page_content(f'{DOMAIN}/kereses?utf8=%E2%9C%93&q=' + quote_plus(keyword))
+    search_url = f'{DOMAIN}/kereses?utf8=%E2%9C%93&query=' + quote_plus(keyword)
+    content = fetch_page_content(search_url)
     return book_page_urls_from_seach_page(fromstring(content))
 
 
