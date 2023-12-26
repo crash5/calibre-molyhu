@@ -2,10 +2,10 @@ name: Build calibre package
 
 on:
   push:
-    branches: ['main', 'dev', 'master']
+    branches: [$default-branch, 'dev']
     tags: ['v*']
   pull_request:
-    branches: ['main', 'dev', 'master']
+    branches: [$default-branch, 'dev']
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
