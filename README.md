@@ -33,3 +33,8 @@ VSCode:
     ],
 }
 ```
+
+Release new version:
+- Update versions:
+    - calibre/__init__.py: version = (6, 0, 0)
+    - moly_hu/pyproject.toml: version = '6.0.0'
