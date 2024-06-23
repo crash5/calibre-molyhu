@@ -137,7 +137,8 @@ class Book:
 
     def tags(self):
         tags_node = self._xml_root.xpath('//*[@id="tags"]//*[@class="hover_link"]/text()') \
-            or self._xml_root.xpath('//*[@id="book_tags"]//*[@class="hover_link"]/text()')
+            or self._xml_root.xpath('//*[@id="book_tags"]//*[@class="hover_link"]/text()') \
+            or self._xml_root.xpath('//*[@id="book_tags"]//*[@rel="tag"]/text()')
         tags = [str(text) for text in tags_node if text.strip()]
         if tags:
             return tags
