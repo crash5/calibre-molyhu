@@ -21,3 +21,11 @@ dev = ['pytest']
 
 [project.urls]
 Homepage = 'https://github.com/crash5/calibre-molyhu'
+
+[tool.flake8]
+max-line-length = 200
+extend-ignore = "E203, E701"
+
+[tool.isort]
+profile = "black"
+src_paths = ["moly_hu/src", "moly_hu/tests", "calibre", "calibre-web"]
