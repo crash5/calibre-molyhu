@@ -58,8 +58,9 @@ class Book:
         self._moly_id = moly_id
 
     def __str__(self) -> str:
-        author = (self.authors()[0:1] or ("Unknown",))[0]
-        return f"{author}: {self.title()} ({self.publisher()}, {self.publication_date()}, {self.isbn()}, {self.moly_id()})"
+        author = (self.authors()[0:1] if self.author() else ("Unknown",))[0]
+        series = f" [{self.series()[0]} / {self.series()[1]}]" if self.series() else ""
+        return f"{author}: {self.title()}{series} ({self.publisher()}, {self.publication_date()}, {self.isbn()}, {self.moly_id()})"
 
     def moly_id(self):
         return self._moly_id
@@ -85,15 +86,22 @@ class Book:
         series_node = self._xml_root.xpath(
             '//*[@id="content"]//*[@class="action"]/text()'
         )
-        if series_node:
-            series = series_node[0].strip("().").rsplit(" ", 1)
-            try:
-                # FIXME(crash): what to do if the index is '1-2' and has to be an int?
-                series[1] = int(series[1])
-            except:
-                series[1] = 1
-            return series
-        return None
+        if not series_node:
+            return None
+
+        series = series_node[0].strip("().").rsplit(" ", 1)
+        if len(series) < 2:
+            return None
+
+        if series[1] == "kiadás":
+            return None
+        try:
+            # FIXME(crash): what to do if the index is '1-2' but has to be an int?
+            series[1] = int(series[1])
+        except Exception:
+            series[1] = 1
+
+        return series
 
     def publisher(self):
         old_publisher = self._publisher(
