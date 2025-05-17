@@ -24,7 +24,10 @@ Homepage = 'https://github.com/crash5/calibre-molyhu'
 
 [tool.flake8]
 max-line-length = 200
-extend-ignore = "E203, E701"
+extend-ignore = [
+    "E203", # Whitespace before ":"
+    "E701"  # Multiple statements on one line
+]
 
 [tool.isort]
 profile = "black"
