@@ -19,6 +19,7 @@ python -m pytest -v moly_hu/tests/
 ```
 
 Reload in calibre: `calibre-debug -s; calibre-customize -b .; calibre`
+Search for book: `python -m moly_hu.main "raymond feist"`
 
 VSCode:
 ```
