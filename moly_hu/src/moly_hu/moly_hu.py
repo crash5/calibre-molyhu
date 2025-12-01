@@ -51,14 +51,14 @@ def book_url_for_id(id):
     return f"{BOOK_URL}/{id}"
 
 
-# FIXME(crash): andd isvalid() method to check the required values (id, isbn, title etc.)
+# FIXME(crash): add isvalid() method to check the required values (id, isbn, title etc.)
 class Book:
     def __init__(self, xml_root, moly_id=None):
         self._xml_root = xml_root
         self._moly_id = moly_id
 
     def __str__(self) -> str:
-        author = (self.authors()[0:1] if self.author() else ("Unknown",))[0]
+        author = (self.authors()[0:1] if self.authors() else ("Unknown",))[0]
         series = f" [{self.series()[0]} / {self.series()[1]}]" if self.series() else ""
         return f"{author}: {self.title()}{series} ({self.publisher()}, {self.publication_date()}, {self.isbn()}, {self.moly_id()})"
 
