@@ -17,23 +17,24 @@ def book_to_metadata(book: moly_hu.Book, source_info: MetaSourceInfo, locale) ->
     metadata = MetaRecord(
          id=book.moly_id(),
          title=book.title(),
-         authors=book.authors(),
+         authors=book.authors() or ['Unknown'],
          url=moly_hu.book_url_for_id(book.moly_id()),
          source=source_info
     )
 
     if covers := book.cover_urls():
         metadata.cover =  covers[0]
-    metadata.description = book.description()
+    metadata.description = book.description() or ''
     if book.series():
         metadata.series = book.series()[0]
         metadata.series_index = book.series()[1]
     metadata.identifiers[source_info.id] = book.moly_id()
-    metadata.identifiers['isbn'] = book.isbn()
-    metadata.publisher = book.publisher()
+    if book.isbn():
+        metadata.identifiers['isbn'] = book.isbn()
+    metadata.publisher = book.publisher() or ''
     if pubdate := book.publication_date():
         metadata.publishedDate = datetime(pubdate, 1, 1).strftime('%Y-%m-%d')
-    metadata.rating = book.rating()
+    metadata.rating = book.rating() or 0
     metadata.languages = parse_languages(book.languages(), locale)
     metadata.tags = book.tags()
 
