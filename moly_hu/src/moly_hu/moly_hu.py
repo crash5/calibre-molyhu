@@ -210,7 +210,9 @@ class Book:
     def description(self):
         description_node = self._xml_root.xpath(
             '//*[@id="content"]//*[@class="text" and @id="full_description"]/p/text()'
-        ) or self._xml_root.xpath('//*[@id="content"]//*[@class="text"]/p/text()')
+        ) \
+        or self._xml_root.xpath('//*[@id="content"]//*[@class="text"]/p/text()') \
+        or self._xml_root.xpath('//*[@id="content"]//*[@class="text shrinkable"]/p/text()')
         if description_node:
             join_desc_node = "\n".join(description_node)
             join_desc_node = join_desc_node.replace("\n\n", "\n")
