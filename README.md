@@ -8,6 +8,17 @@ Supported applications:
 - [calibre](https://calibre-ebook.com/)
 - [calibre-web](https://github.com/janeczku/calibre-web)
 
+## Usage
+
+Search for book in command-line: `python -m moly_hu.main "raymond feist"`
+
+Include it in calibre-web docker yaml:
+```
+volumes:
+  - moly_hu.py:/app/calibre-web/cps/metadata_provider/moly_hu.py:ro
+  - moly_hu_provider.py:/app/calibre-web/cps/metadata_provider/moly_hu_provider.py:ro
+```
+
 
 ## Contributing
 ```
@@ -20,9 +31,7 @@ python -m pytest -v moly_hu/tests/
 
 Reload in calibre: `calibre-debug -s; calibre-customize -b .; calibre`
 
-Search for book: `python -m moly_hu.main "raymond feist"`
-
-VSCode:
+VSCode code completion (calibre and calibre-web is one level up in directory tree):
 ```
 {
     "python.autoComplete.extraPaths": [
@@ -36,7 +45,7 @@ VSCode:
 }
 ```
 
-Release new version:
+### Release new version
 - Update versions:
     - calibre/__init__.py: version = (6, 0, 0)
     - moly_hu/pyproject.toml: version = '6.0.0'
