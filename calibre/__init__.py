@@ -31,7 +31,7 @@ class Molyhu(Source):
     name = 'Moly.hu Reloaded'
     description = _('Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin.')
     author = 'Imre NAGY'
-    version = (2, 0, 3)
+    version = (2, 0, 4)
     minimum_calibre_version  = (5, 0, 0)
 
     MOLY_ID_KEY = 'moly_hu'
