@@ -47,7 +47,7 @@ def parse_languages(langs, locale: str) -> List[str]:
 
 
 def fetch_page(page):
-    return requests.get(page).text
+    return requests.get(page, headers={"User-Agent": "Mozilla/5.0 (compatible; CalibreWeb/1.0)"}).text
 
 
 class Molyhu(Metadata):
