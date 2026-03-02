@@ -42,7 +42,7 @@ jobs:
         export RELEASE_VERSION=${{github.ref_name}}
         export RELEASE_FILE_NAME=Calibre_Moly_hu-${RELEASE_VERSION}.zip
         mkdir -p output
-        bash ./scripts/create_calibre_plugin_zip.sh ./ ./output/${RELEASE_FILE_NAME}
+        bash ./scripts/create_calibre_plugin_zip.sh ./ ./output/${RELEASE_FILE_NAME} ${RELEASE_VERSION}
 
     - name: Create calibre-web package
       if: startsWith(github.ref, 'refs/tags/v')
@@ -50,7 +50,7 @@ jobs:
         export RELEASE_VERSION=${{github.ref_name}}
         export RELEASE_FILE_NAME=Calibre-web_Moly_hu-${RELEASE_VERSION}.zip
         mkdir -p output
-        bash ./scripts/create_calibreweb_plugin_zip.sh ./ ./output/${RELEASE_FILE_NAME}
+        bash ./scripts/create_calibreweb_plugin_zip.sh ./ ./output/${RELEASE_FILE_NAME} ${RELEASE_VERSION}
 
     - name: Create release
       if: startsWith(github.ref, 'refs/tags/v')

@@ -44,8 +44,3 @@ VSCode code completion (calibre and calibre-web is one level up in directory tre
     ],
 }
 ```
-
-### Release new version
-- Update versions:
-    - calibre/__init__.py: version = (6, 0, 0)
-    - moly_hu/pyproject.toml: version = '6.0.0'

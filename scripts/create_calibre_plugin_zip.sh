@@ -15,6 +15,7 @@ function toAbsolutePath {
 
 readonly SOURCE_PATH=$(toAbsolutePath "${1}")
 readonly OUTPUT_FILE=$(toAbsolutePath ${2:-"Calibre_Moly_hu_Reloaded.zip"})
+readonly VERSION=${3:-"v0.0.0"}
 
 if [[ ${#@} -lt 1 ]]; then
     echo "Usage: ${0} <source repo path> [output file]"
@@ -28,6 +29,11 @@ cp "${SOURCE_PATH}"/calibre/__init__.py .
 cp "${SOURCE_PATH}"/calibre/plugin-import-name-moly_hu_reloaded.txt .
 cp "${SOURCE_PATH}"/moly_hu/src/moly_hu/moly_hu.py .
 cp "${SOURCE_PATH}"/README.md .
+
+# use proper version
+IFS='.' read -r MAJOR MINOR PATCH <<< "${VERSION#v}"
+sed "s/version = (0, 0, 0)/version = ($MAJOR, $MINOR, $PATCH)/" -i ./__init__.py
+
 zip -r "${OUTPUT_FILE}" .
 
 cd ..

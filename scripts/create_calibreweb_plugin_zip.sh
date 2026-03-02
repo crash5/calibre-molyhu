@@ -15,6 +15,7 @@ function toAbsolutePath {
 
 readonly SOURCE_PATH=$(toAbsolutePath "${1}")
 readonly OUTPUT_FILE=$(toAbsolutePath ${2:-"Calibreweb_Moly_hu.zip"})
+readonly VERSION=${3:-"v0.0.0"}
 
 if [[ ${#@} -lt 1 ]]; then
     echo "Usage: ${0} <source repo path> [output file]"
@@ -27,6 +28,10 @@ cd "${TEMPORARY_WORK_DIR}"
 cp "${SOURCE_PATH}"/calibre-web/moly_hu.py .
 cp "${SOURCE_PATH}"/moly_hu/src/moly_hu/moly_hu.py moly_hu_provider.py
 cp "${SOURCE_PATH}"/README.md .
+
+sed -i "1s;^;# version: $VERSION\n\n;" ./moly_hu.py
+sed -i "1s;^;# version: $VERSION\n\n;" ./moly_hu_provider.py
+
 zip -r "${OUTPUT_FILE}" .
 
 cd ..
