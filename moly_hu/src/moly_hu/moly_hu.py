@@ -1,224 +1,191 @@
+import json
 import re
 from urllib.parse import quote_plus
 
-from lxml.etree import strip_tags
-from lxml.html import fromstring
-
 DOMAIN = "https://moly.hu"
-BOOK_URL = DOMAIN + "/konyvek"
+BOOK_URL = f"{DOMAIN}/konyvek"
+API_URL = f"{DOMAIN}/api/calibre"
+
+YEAR_RE = re.compile(r"(\d{4})")
+ISBN_RE = re.compile(r"(\d{13}|\d{10})")
+
+LANG_MAP = {
+    "magyar": "hu",
+    "magyar nyelvű": "hu",
+    "angol": "en",
+    "angol nyelvű": "en",
+    "német": "de",
+    "német nyelvű": "de",
+    "francia": "fr",
+    "francia nyelvű": "fr",
+    "olasz": "it",
+    "olasz nyelvű": "it",
+    "spanyol": "es",
+    "spanyol nyelvű": "es",
+    "orosz": "ru",
+    "orosz nyelvű": "ru",
+    "török": "tr",
+    "török nyelvű": "tr",
+    "görög": "el",
+    "görög nyelvű": "el",
+    "kínai": "zh",
+    "kínai nyelvű": "zh",
+    "japán": "ja",
+    "japán nyelvű": "ja",
+}
 
 
 def generate_search_terms(title, authors, identifiers):
-    search_terms = list()
-    isbn = identifiers.get("isbn")
-    if isbn:
+    search_terms = []
+    if isbn := identifiers.get("isbn"):
         search_terms.append(isbn)
     if authors and title:
-        for author in authors:
-            search_terms.append(f"{author} {title}")
+        search_terms.extend(f"{author} {title}" for author in authors)
     if title:
         search_terms.append(title)
     return list(dict.fromkeys(search_terms))
 
 
-def book_for_id(book_id, fetch_page_content):
-    url = f"{BOOK_URL}/{book_id}"
-    book_page = fetch_page_content(url)
-    if book_page:
-        return Book(xml_root=fromstring(book_page), moly_id=book_id)
-    return None
-
-
-def book_page_urls_from_seach_page(xml_root):
-    book_url_prefix = "/konyvek/"
-    book_list_root = xml_root.xpath('//a[@class="book_selector"]')
-    matches = set()
-    for book_item in book_list_root:
-        strip_tags(book_item, "strong")
-        for url in book_item.xpath("@href"):
-            if url.startswith(book_url_prefix):
-                matches.add(url[len(book_url_prefix) :])
-    return matches
-
-
 def search(keyword, fetch_page_content):
-    search_url = f"{DOMAIN}/kereses?utf8=%E2%9C%93&query=" + quote_plus(keyword)
+    search_url = f"{API_URL}?q={quote_plus(keyword)}"
     content = fetch_page_content(search_url)
-    return book_page_urls_from_seach_page(fromstring(content))
+    if not content:
+        return []
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        return []
+
+    if not isinstance(data, list):
+        return []
+
+    return [Book(item) for item in data if isinstance(item, dict)]
 
 
-def book_url_for_id(id):
-    return f"{BOOK_URL}/{id}"
+def book_for_id(book_id, fetch_page_content):
+    target_id = str(book_id)
+    books = search(target_id, fetch_page_content)
+    for book in books:
+        if book.moly_id() == target_id:
+            return book
+    return books[0] if books else None
 
 
-# FIXME(crash): add isvalid() method to check the required values (id, isbn, title etc.)
+def book_url_for_id(book_id):
+    return f"{BOOK_URL}/{book_id}"
+
+
+def _flatten_strings(value):
+    result = []
+    if isinstance(value, list):
+        for item in value:
+            result.extend(_flatten_strings(item))
+    elif value is not None:
+        text = str(value)
+        if text:
+            result.append(text)
+    return result
+
+
 class Book:
-    def __init__(self, xml_root, moly_id=None):
-        self._xml_root = xml_root
-        self._moly_id = moly_id
+    def __init__(self, data: dict):
+        self._data = data
 
     def __str__(self) -> str:
-        author = (self.authors()[0:1] if self.authors() else ("Unknown",))[0]
-        series = f" [{self.series()[0]} / {self.series()[1]}]" if self.series() else ""
+        authors = self.authors()
+        author = authors[0] if authors else "Unknown"
+        series_info = self.series()
+        series = f" [{series_info[0]} / {series_info[1]}]" if series_info else ""
         return f"{author}: {self.title()}{series} ({self.publisher()}, {self.publication_date()}, {self.isbn()}, {self.moly_id()})"
 
     def moly_id(self):
-        return self._moly_id
+        book_id = self._data.get("id")
+        return str(book_id) if book_id is not None else None
 
     def authors(self):
-        author_nodes = self._xml_root.xpath(
-            '//*[@id="content"]//div[@class="authors"]/a/text()'
-        )
-        if author_nodes:
-            return [str(author) for author in author_nodes]
-        return None
+        raw_author = self._data.get("author")
+        if not raw_author:
+            return None
+        if isinstance(raw_author, list):
+            authors = _flatten_strings(raw_author)
+        else:
+            authors = [a for a in str(raw_author).split(",") if a]
+        return authors or None
 
     def title(self):
-        title_node = self._xml_root.xpath(
-            '//*[@id="content"]//*[@class="fn"]/text()'
-        ) or self._xml_root.xpath('//*[@id="content"]//*[@class="item"]/text()')
-        if title_node:
-            # Cimből a ZWJ (zero-width joiner = nulla szélességű szóköz) karakter (\u200b) eltávolítása
-            return title_node[0].strip().replace("\u200b", "")
-        return None
+        title = self._data.get("title")
+        return str(title) if title else None
 
     def series(self):
-        series_node = self._xml_root.xpath(
-            '//*[@id="content"]//*[@class="action"]/text()'
-        )
-        if not series_node:
+        series_name = self._data.get("series")
+        if not series_name:
             return None
-
-        series = series_node[0].strip("().").rsplit(" ", 1)
-        if len(series) < 2:
-            return None
-
-        if series[1] == "kiadás":
-            return None
+        series_index = self._data.get("series_index")
         try:
-            # FIXME(crash): what to do if the index is '1-2' but has to be an int?
-            series[1] = int(series[1])
-        except Exception:
-            series[1] = 1
-
-        return series
+            index_val = float(series_index) if series_index is not None else 1.0
+            if index_val.is_integer():
+                index_val = int(index_val)
+        except (ValueError, TypeError):
+            index_val = 1
+        return [str(series_name), index_val]
 
     def publisher(self):
-        old_publisher = self._publisher(
-            '//*[@id="content"]//*[@class="items"]/div/div[1]/a/text()'
-        )
-        if old_publisher and old_publisher != "+":
-            return old_publisher
-        return self._publisher(
-            '//*[@id="content"]//*[@class="items"]/div/div[2]/a/text()'
-        )
-
-    def _publisher(self, xpath):
-        publisher_node = self._xml_root.xpath(xpath)
-        if publisher_node:
-            return publisher_node[0]
-        return None
+        publishers = _flatten_strings(self._data.get("publisher"))
+        return publishers[0] if publishers else None
 
     def publication_date(self):
-        date_str = self._publication_date(
-            '//*[@id="content"]//*[@class="items"]/div/div[1]/text()'
-        ) or self._publication_date(
-            '//*[@id="content"]//*[@class="items"]/div/div[2]/text()'
-        )
-        if date_str:
-            return int(date_str)
-
-    def _publication_date(self, xpath):
-        publication_node = self._xml_root.xpath(xpath)
-        for publication_value in publication_node:
-            match = re.search(r"(\d{4})", publication_value)
-            if match:
-                return match.group(1)
+        for date_val in _flatten_strings(self._data.get("pubdate")):
+            if match := YEAR_RE.search(date_val):
+                return int(match.group(1))
         return None
 
     def isbn(self):
-        return self._isbn(
-            '//*[@id="content"]//*[@class="items"]/div/div[2]/text()'
-        ) or self._isbn('//*[@id="content"]//*[@class="items"]/div/div[3]/text()')
-
-    def _isbn(self, xpath):
-        isbn_node = self._xml_root.xpath(xpath)
-        for isbn_value in isbn_node:
-            match = re.search(r"(\d{13}|\d{10})", isbn_value)
-            if match:
+        for isbn_val in _flatten_strings(self._data.get("isbn")):
+            clean = isbn_val.replace("-", "")
+            if match := ISBN_RE.search(clean):
                 return match.group(1)
         return None
 
     def cover_urls(self):
-        book_covers = self._xml_root.xpath('(//*[@class="coverbox"]//a/@href)')
-        if book_covers:
-            return [f"{DOMAIN}{cover_url}" for cover_url in book_covers]
-        return None
+        urls = []
+        for url in _flatten_strings(self._data.get("cover")):
+            if url.startswith("http"):
+                urls.append(url)
+            elif url.startswith("/"):
+                urls.append(f"{DOMAIN}{url}")
+        return urls or None
 
     def tags(self):
-        tags_node = (
-            self._xml_root.xpath('//*[@id="tags"]//*[@class="hover_link"]/text()')
-            or self._xml_root.xpath(
-                '//*[@id="book_tags"]//*[@class="hover_link"]/text()'
-            )
-            or self._xml_root.xpath('//*[@id="book_tags"]//*[@rel="tag"]/text()')
-        )
-        tags = [str(text) for text in tags_node if text.strip()]
-        if tags:
-            return tags
-        return None
+        return _flatten_strings(self._data.get("tags")) or None
 
     def rating(self):
-        rating_node = self._xml_root.xpath(
-            '//*[@id="content"]//*[@class="rating"]//*[@class="like_count"]/text()'
-        )
-        if rating_node:
-            return round(float(rating_node[0].strip("%").strip()) * 0.05)
-        return None
+        raw_rating = self._data.get("rating")
+        if raw_rating is None:
+            return None
+        try:
+            val = float(raw_rating)
+            return round(val, 2) if val > 0 else None
+        except (ValueError, TypeError):
+            return None
 
     def languages(self):
-        tags = self.tags()
-        if not tags:
-            return None
         langs = []
-        for tag in tags:
-            langId = self._translateLanguageToCode(tag)
-            if langId is not None:
-                langs.append(langId)
-        if not langs:
-            return ["hu"]
-        return langs
+        for lang in _flatten_strings(self._data.get("languages")):
+            code = self._translateLanguageToCode(lang)
+            if code and code not in langs:
+                langs.append(code)
+
+        if not langs and (book_tags := self.tags()):
+            for tag in book_tags:
+                code = self._translateLanguageToCode(tag)
+                if code and code not in langs:
+                    langs.append(code)
+
+        return langs or ["hu"]
 
     def _translateLanguageToCode(self, displayLang):
-        displayLang = displayLang.lower().strip() if displayLang else None
-        langTbl = {
-            None: "und",
-            "angol nyelvű": "en",
-            "német nyelvű": "de",
-            "francia nyelvű": "fr",
-            "olasz nyelvű": "it",
-            "spanyol nyelvű": "es",
-            "orosz nyelvű": "ru",
-            "török nyelvű": "tr",
-            "görüg nyelvű": "gr",
-            "kínai nyelvű": "cn",
-            "japán nyelvű": "jp",
-            "magyar nyelvű": "hu",
-        }
-        return langTbl.get(displayLang, None)
+        return LANG_MAP.get(displayLang.lower()) if displayLang else None
 
     def description(self):
-        description_node = self._xml_root.xpath(
-            '//*[@id="content"]//*[@class="text" and @id="full_description"]/p/text()'
-        ) \
-        or self._xml_root.xpath('//*[@id="content"]//*[@class="text"]/p/text()') \
-        or self._xml_root.xpath('//*[@id="content"]//*[@class="text shrinkable"]/p/text()')
-        if description_node:
-            join_desc_node = "\n".join(description_node)
-            join_desc_node = join_desc_node.replace("\n\n", "\n")
-            join_desc_node = join_desc_node.replace("\n \n", "\n")
-            join_desc_node = join_desc_node.replace(
-                "Vigyázat! Cselekményleírást tartalmaz.\n", ""
-            )
-            return join_desc_node
-        return None
+        desc = self._data.get("description") or self._data.get("comments")
+        return str(desc) if desc else None
