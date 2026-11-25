@@ -13,13 +13,18 @@ if __name__ == "__main__":
     search_for = args.search_for
     max_result = args.count
 
-    browser = lambda url: urllib.request.urlopen(
-        urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; CalibreMolyhu/1.0)"})
-    ).read().decode("utf-8")
+    browser = (
+        lambda url: urllib.request.urlopen(
+            urllib.request.Request(
+                url,
+                headers={"User-Agent": "Mozilla/5.0 (compatible; CalibreMolyhu/1.0)"},
+            )
+        )
+        .read()
+        .decode("utf-8")
+    )
 
-    book_ids = molyhu.search(search_for, browser)
-    for count, book_id in enumerate(book_ids, start=1):
+    for count, book in enumerate(molyhu.search(search_for, browser), start=1):
         if count > max_result:
             break
-        book = molyhu.book_for_id(book_id, browser)
         print(book)

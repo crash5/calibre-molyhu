@@ -4,25 +4,23 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'molyhu'
-version = '2.0.4'
+version = '3.0.3'
 description = 'Moly.hu metadata scraper'
 authors = [
     {name = 'Imre NAGY'},
 ]
 
-dependencies = [
-    'lxml'
-]
-
-requires-python = '>=3.7'
+requires-python = '>=3.8'
 
 [project.optional-dependencies]
-dev = ['pytest']
+dev = ['pytest', 'isort', 'black']
 
 [project.urls]
 Homepage = 'https://github.com/crash5/calibre-molyhu'
 
+
 [tool.flake8]
+exclude = ["moly_hu/tests"]
 max-line-length = 200
 extend-ignore = [
     "E203", # Whitespace before ":"
@@ -32,3 +30,14 @@ extend-ignore = [
 [tool.isort]
 profile = "black"
 src_paths = ["moly_hu/src", "moly_hu/tests", "calibre", "calibre-web"]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "--showlocals",
+    "--quiet",
+    "-r A",
+    "--import-mode=importlib"
+]
+testpaths = ["moly_hu/tests"]

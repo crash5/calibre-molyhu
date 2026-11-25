@@ -8,6 +8,9 @@ Supported applications:
 - [calibre](https://calibre-ebook.com/)
 - [calibre-web](https://github.com/janeczku/calibre-web)
 
+
+Source code: https://github.com/crash5/calibre-molyhu
+
 ## Usage
 
 Search for book in command-line: `python -m moly_hu.main "raymond feist"`

@@ -50,6 +50,7 @@ class Molyhu(Source):
 
     MOLY_ID_KEY = "moly_hu"
 
+    # Capabilities
     capabilities = frozenset(["identify", "cover"])
     touched_fields = frozenset(
         [
@@ -69,6 +70,7 @@ class Molyhu(Source):
         ]
     )
 
+    # Options
     KEY_MAX_BOOKS = "max_books"
     options = (
         Option(
@@ -168,6 +170,7 @@ class Molyhu(Source):
         )
         return self.cached_identifier_to_cover_url(moly_id)
 
+    # original from: calibre/src/calibre/ebooks/metadata/sources/amazon.py
     def download_cover(
         self,
         log,
