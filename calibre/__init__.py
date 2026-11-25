@@ -45,7 +45,7 @@ class Molyhu(Source):
         "Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin and moly.hu API"
     )
     author = "Imre NAGY"
-    version = (3, 0, 2)
+    version = (0, 0, 0)
     minimum_calibre_version = (5, 0, 0)
 
     MOLY_ID_KEY = "moly_hu"
