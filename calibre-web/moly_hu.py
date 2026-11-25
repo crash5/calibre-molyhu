@@ -71,13 +71,9 @@ class Molyhu(Metadata):
                 query = " ".join(title_tokens)
                 log.info(f"Query: {query}")
 
-                book_ids = moly_hu.search(query, fetch_page)
-                log.info(f"Found book ids: {book_ids}")
-                for id in book_ids:
-                    book = moly_hu.book_for_id(id, fetch_page)
-                    if not book:
-                        log.warning(f"No book found with id: {id}")
-                        continue
+                books = moly_hu.search(query, fetch_page)
+                log.info(f"{len(books)} match on moly.hu")
+                for book in books:
                     found_books.append(
                         book_to_metadata(book, self.MOLY_SOURCE_INFO, locale)
                     )
