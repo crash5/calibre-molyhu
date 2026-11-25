@@ -1,15 +1,17 @@
-from queue import Empty, Queue
 import datetime
-
-from calibre.ebooks.metadata.sources.base import Source, Option
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata import check_isbn
+from queue import Empty, Queue
 
 import calibre_plugins.moly_hu_reloaded.moly_hu as moly_hu
 
+from calibre.ebooks.metadata import check_isbn
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.sources.base import Option, Source
+
 
 def book_to_metadata(book) -> Metadata:
-    metadata = Metadata(book.title() or _('Unknown title'), book.authors() or [_('Unknown')])
+    metadata = Metadata(
+        book.title() or _("Unknown title"), book.authors() or [_("Unknown")]
+    )
     metadata.source_relevance = 0
 
     if moly_id := book.moly_id():
@@ -17,7 +19,7 @@ def book_to_metadata(book) -> Metadata:
 
     if raw_isbn := book.isbn():
         if isbn := check_isbn(raw_isbn):
-            metadata.set_identifier('isbn', isbn)
+            metadata.set_identifier("isbn", isbn)
 
     if desc := book.description():
         metadata.comments = desc
@@ -38,34 +40,44 @@ def book_to_metadata(book) -> Metadata:
 
 
 class Molyhu(Source):
-    name = 'Moly.hu Reloaded'
-    description = _('Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin and moly.hu API')
-    author = 'Imre NAGY'
+    name = "Moly.hu Reloaded"
+    description = _(
+        "Downloads metadata and covers from moly.hu. Based on Hokutya Moly_hu plugin and moly.hu API"
+    )
+    author = "Imre NAGY"
     version = (3, 0, 2)
     minimum_calibre_version = (5, 0, 0)
 
-    MOLY_ID_KEY = 'moly_hu'
+    MOLY_ID_KEY = "moly_hu"
 
-    capabilities = frozenset(['identify', 'cover'])
-    touched_fields = frozenset([
-        'title',
-        'authors',
-        'identifier:isbn',
-        f'identifier:{MOLY_ID_KEY}',
-        'tags',
-        'comments',
-        'rating',
-        'series',
-        'series_index',
-        'publisher',
-        'pubdate',
-        'language',
-        'languages'
-    ])
+    capabilities = frozenset(["identify", "cover"])
+    touched_fields = frozenset(
+        [
+            "title",
+            "authors",
+            "identifier:isbn",
+            f"identifier:{MOLY_ID_KEY}",
+            "tags",
+            "comments",
+            "rating",
+            "series",
+            "series_index",
+            "publisher",
+            "pubdate",
+            "language",
+            "languages",
+        ]
+    )
 
-    KEY_MAX_BOOKS = 'max_books'
+    KEY_MAX_BOOKS = "max_books"
     options = (
-        Option(KEY_MAX_BOOKS, 'number', 3, _('Maximum number of books to get'), _('The maximum number of books to process from the moly.hu search result')),
+        Option(
+            KEY_MAX_BOOKS,
+            "number",
+            3,
+            _("Maximum number of books to get"),
+            _("The maximum number of books to process from the moly.hu search result"),
+        ),
     )
 
     def identify(self, log, result_queue, abort, title, authors, identifiers, timeout):
@@ -81,19 +93,19 @@ class Molyhu(Source):
                         seen_ids.add(b_id)
                     ordered_books.append(book)
             except Exception as err:
-                log.warning(f'Moly.hu lookup failed for id {moly_id!r}: {err}')
+                log.warning(f"Moly.hu lookup failed for id {moly_id!r}: {err}")
 
         search_terms = moly_hu.generate_search_terms(title, authors, identifiers)
-        log.info(f'Search terms: {search_terms}')
+        log.info(f"Search terms: {search_terms}")
 
         for search_term in search_terms:
             if len(ordered_books) >= max_books:
                 break
             if abort.is_set():
-                log.info('Abort request received, returning.')
+                log.info("Abort request received, returning.")
                 return
 
-            log.info(f'Search for: {search_term}')
+            log.info(f"Search for: {search_term}")
             try:
                 for book in moly_hu.search(search_term, self._fetch_page):
                     b_id = book.moly_id()
@@ -105,11 +117,11 @@ class Molyhu(Source):
                     if len(ordered_books) >= max_books:
                         break
             except Exception as err:
-                log.warning(f'Moly.hu search failed for {search_term!r}: {err}')
+                log.warning(f"Moly.hu search failed for {search_term!r}: {err}")
 
         for idx, book in enumerate(ordered_books[:max_books]):
             if abort.is_set():
-                log.info('Abort request received, returning.')
+                log.info("Abort request received, returning.")
                 return
 
             b_id = book.moly_id()
@@ -128,14 +140,16 @@ class Molyhu(Source):
 
     def _fetch_page(self, url):
         raw = self.browser.open(url).read()
-        return raw.decode('utf-8', errors='replace')
+        return raw.decode("utf-8", errors="replace")
 
     def get_book_url(self, identifiers):
         result = []
         if moly_id := identifiers.get(self.MOLY_ID_KEY):
             result.append((self.MOLY_ID_KEY, moly_id, moly_hu.book_url_for_id(moly_id)))
-        if isbn := identifiers.get('isbn'):
-            result.append(('isbn', isbn, f'http://www.mokka.hu/mokka/CCL/q=MEGA%3D{isbn}'))
+        if isbn := identifiers.get("isbn"):
+            result.append(
+                ("isbn", isbn, f"http://www.mokka.hu/mokka/CCL/q=MEGA%3D{isbn}")
+            )
         return tuple(result) or None
 
     def get_book_urls(self, identifiers):
@@ -143,23 +157,43 @@ class Molyhu(Source):
 
     def get_book_url_name(self, idtype, idval, url):
         if idtype == self.MOLY_ID_KEY:
-            return 'moly.hu'
-        if idtype == 'isbn':
-            return 'mokka.hu'
+            return "moly.hu"
+        if idtype == "isbn":
+            return "mokka.hu"
         return None
 
     def get_cached_cover_url(self, identifiers):
-        moly_id = identifiers.get(self.MOLY_ID_KEY) or self.cached_isbn_to_identifier(identifiers.get('isbn'))
+        moly_id = identifiers.get(self.MOLY_ID_KEY) or self.cached_isbn_to_identifier(
+            identifiers.get("isbn")
+        )
         return self.cached_identifier_to_cover_url(moly_id)
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers=None, timeout=30, get_best_cover=False):
+    def download_cover(
+        self,
+        log,
+        result_queue,
+        abort,
+        title=None,
+        authors=None,
+        identifiers=None,
+        timeout=30,
+        get_best_cover=False,
+    ):
         identifiers = identifiers or {}
         cached_url = self.get_cached_cover_url(identifiers)
 
         if cached_url is None:
-            log.info('No cached cover found, running identify')
+            log.info("No cached cover found, running identify")
             rq = Queue()
-            self.identify(log, rq, abort, title=title, authors=authors, identifiers=identifiers, timeout=timeout)
+            self.identify(
+                log,
+                rq,
+                abort,
+                title=title,
+                authors=authors,
+                identifiers=identifiers,
+                timeout=timeout,
+            )
             if abort.is_set():
                 return
 
@@ -170,21 +204,27 @@ class Molyhu(Source):
                 except Empty:
                     break
 
-            results.sort(key=self.identify_results_keygen(title=title, authors=authors, identifiers=identifiers))
+            results.sort(
+                key=self.identify_results_keygen(
+                    title=title, authors=authors, identifiers=identifiers
+                )
+            )
             for mi in results:
-                if (cached_url := self.get_cached_cover_url(mi.identifiers)) is not None:
+                if (
+                    cached_url := self.get_cached_cover_url(mi.identifiers)
+                ) is not None:
                     break
 
         if cached_url is None:
-            log.info('No cover found')
+            log.info("No cover found")
             return
 
         if abort.is_set():
             return
 
-        log('Downloading cover from:', cached_url)
+        log("Downloading cover from:", cached_url)
         try:
             cdata = self.browser.open_novisit(cached_url, timeout=timeout).read()
             result_queue.put((self, cdata))
         except Exception:
-            log.exception('Failed to download cover from:', cached_url)
+            log.exception("Failed to download cover from:", cached_url)
