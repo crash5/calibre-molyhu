@@ -33,6 +33,8 @@ cp "${SOURCE_PATH}"/README.md .
 # use proper version
 IFS='.' read -r MAJOR MINOR PATCH <<< "${VERSION#v}"
 sed "s/version = (0, 0, 0)/version = ($MAJOR, $MINOR, $PATCH)/" -i ./__init__.py
+sed -i "1s;^;# version: $VERSION\n\n;" ./moly_hu.py
+sed -i "1s;^;# version: $VERSION\n\n;" ./__init__.py
 
 zip -r "${OUTPUT_FILE}" .
 
