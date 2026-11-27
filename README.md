@@ -24,6 +24,14 @@ volumes:
 
 
 ## Contributing
+
+- Plugin class
+    - `calibre/src/calibre/customize/__init__.py`
+    - https://manual.calibre-ebook.com/plugins.html#plugin
+- (Metadata) Source class
+    - `calibre/src/calibre/ebooks/metadata/sources/base.py`
+    - https://manual.calibre-ebook.com/plugins.html#module-calibre.ebooks.metadata.sources.base
+
 ```
 python -m venv .venv
 source .venv/bin/activate
