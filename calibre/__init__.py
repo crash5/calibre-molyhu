@@ -8,7 +8,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source
 
 
-def book_to_metadata(book) -> Metadata:
+def book_to_metadata(book, remove_paragraph_spacing=False) -> Metadata:
     metadata = Metadata(
         book.title() or _("Unknown title"), book.authors() or [_("Unknown")]
     )
@@ -23,6 +23,8 @@ def book_to_metadata(book) -> Metadata:
 
     if desc := book.description():
         metadata.comments = desc
+        if remove_paragraph_spacing:
+            metadata.comments = metadata.comments.replace("\r\n\r\n", "\r\n")
 
     metadata.tags = book.tags()
     metadata.languages = book.languages()
@@ -72,13 +74,23 @@ class Molyhu(Source):
 
     # Options
     KEY_MAX_BOOKS = "max_books"
+    KEY_REMOVE_PARAGRAPH_SPACING = "remove_paragraph_spacing"
     options = (
         Option(
-            KEY_MAX_BOOKS,
-            "number",
-            3,
-            _("Maximum number of books to get"),
-            _("The maximum number of books to process from the moly.hu search result"),
+            name=KEY_MAX_BOOKS,
+            type_="number",
+            default=3,
+            label=_("Maximum number of books to get"),
+            desc=_(
+                "The maximum number of books to process from the moly.hu search result"
+            ),
+        ),
+        Option(
+            name=KEY_REMOVE_PARAGRAPH_SPACING,
+            type_="bool",
+            default=False,
+            label=_("Remove paragraph spacing in comments field"),
+            desc=_('Remove additional empty space between paragraphs ("double line breaks")'),
         ),
     )
 
@@ -133,7 +145,10 @@ class Molyhu(Source):
                 if isbn := book.isbn():
                     self.cache_isbn_to_identifier(isbn, b_id)
 
-            metadata = book_to_metadata(book)
+            metadata = book_to_metadata(
+                book,
+                bool(self.prefs.get(self.KEY_REMOVE_PARAGRAPH_SPACING)),
+            )
             metadata.source_relevance = idx
             self.clean_downloaded_metadata(metadata)
             result_queue.put(metadata)
