@@ -27,3 +27,8 @@ def test_book_with_3_hyphenated_authors():
     book = Book({"author": "John Green - Maureen Johnson - Lauren Myracle"})
 
     assert book.authors() == ["John Green", "Maureen Johnson", "Lauren Myracle"]
+
+def test_book_with_1_author():
+    book = Book({"author": "John Green"})
+
+    assert book.authors() == ["John Green"]
