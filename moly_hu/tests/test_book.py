@@ -15,3 +15,15 @@ def test_book_with_empty_input():
     assert book.rating() == None
     assert book.languages() == ["hu"]
     assert book.description() == None
+
+
+def test_book_with_2_hyphenated_authors():
+    book = Book({"author": "Neil Gaiman - Terry Pratchett"})
+
+    assert book.authors() == ["Neil Gaiman", "Terry Pratchett"]
+
+
+def test_book_with_3_hyphenated_authors():
+    book = Book({"author": "John Green - Maureen Johnson - Lauren Myracle"})
+
+    assert book.authors() == ["John Green", "Maureen Johnson", "Lauren Myracle"]

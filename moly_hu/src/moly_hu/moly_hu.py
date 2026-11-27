@@ -106,10 +106,12 @@ class Book:
         raw_author = self._data.get("author")
         if not raw_author:
             return None
+
         if isinstance(raw_author, list):
             authors = _flatten_strings(raw_author)
         else:
-            authors = [a for a in str(raw_author).split(",") if a]
+            authors = [a for a in str(raw_author).split(" - ") if a]
+
         return authors or None
 
     def title(self):
