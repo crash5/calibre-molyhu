@@ -31,6 +31,10 @@ volumes:
 - (Metadata) Source class
     - `calibre/src/calibre/ebooks/metadata/sources/base.py`
     - https://manual.calibre-ebook.com/plugins.html#module-calibre.ebooks.metadata.sources.base
+- (Book) Metadata class
+    - `calibre/src/calibre/ebooks/metadata/book/base.py`
+    - https://manual.calibre-ebook.com/_modules/calibre/ebooks/metadata/book/base.html
+
 
 ```
 python -m venv .venv
