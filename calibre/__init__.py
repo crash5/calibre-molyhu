@@ -8,11 +8,13 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source
 
 
-def book_to_metadata(book, remove_paragraph_spacing=False) -> Metadata:
+def book_to_metadata(
+    book, remove_paragraph_spacing=False, source_relevance=0
+) -> Metadata:
     metadata = Metadata(
         book.title() or _("Unknown title"), book.authors() or [_("Unknown")]
     )
-    metadata.source_relevance = 0
+    metadata.source_relevance = source_relevance
 
     if moly_id := book.moly_id():
         metadata.set_identifier(Molyhu.MOLY_ID_KEY, moly_id)
@@ -90,7 +92,9 @@ class Molyhu(Source):
             type_="bool",
             default=False,
             label=_("Remove paragraph spacing in comments field"),
-            desc=_('Remove additional empty space between paragraphs ("double line breaks")'),
+            desc=_(
+                'Remove additional empty space between paragraphs ("double line breaks")'
+            ),
         ),
     )
 
@@ -146,11 +150,10 @@ class Molyhu(Source):
                     self.cache_isbn_to_identifier(isbn, b_id)
 
             metadata = book_to_metadata(
-                book,
-                bool(self.prefs.get(self.KEY_REMOVE_PARAGRAPH_SPACING)),
+                book, bool(self.prefs.get(self.KEY_REMOVE_PARAGRAPH_SPACING)), idx
             )
-            metadata.source_relevance = idx
             self.clean_downloaded_metadata(metadata)
+
             result_queue.put(metadata)
 
         return None
