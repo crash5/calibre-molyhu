@@ -52,7 +52,7 @@ class Molyhu(Source):
     version = (0, 0, 0)
     minimum_calibre_version = (5, 0, 0)
 
-    MOLY_ID_KEY = "moly_hu"
+    MOLY_ID_KEY = moly_hu.MOLY_ID_KEY
 
     # Capabilities
     capabilities = frozenset(["identify", "cover"])

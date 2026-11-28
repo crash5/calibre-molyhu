@@ -6,6 +6,7 @@ DOMAIN = "https://moly.hu"
 BOOK_URL = f"{DOMAIN}/konyvek"
 API_URL = f"{DOMAIN}/api/calibre"
 
+MOLY_ID_KEY = "moly_hu"
 YEAR_RE = re.compile(r"(\d{4})")
 ISBN_RE = re.compile(r"(\d{13}|\d{10})")
 
@@ -37,6 +38,8 @@ LANG_MAP = {
 
 def generate_search_terms(title, authors, identifiers):
     search_terms = []
+    if moly_id := identifiers.get(MOLY_ID_KEY):
+        search_terms.append(moly_id)
     if isbn := identifiers.get("isbn"):
         search_terms.append(isbn)
     if authors and title:
